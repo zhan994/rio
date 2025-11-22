@@ -54,3 +54,4 @@ build/
 *.xlsx#
 
 
+.vscode/

@@ -1,3 +1,20 @@
+## AgriLiRa4D Dataset
+
+Install prerequisites including `ROS>=Noetic`, `Eigen>=3.3.4`, and `PCL>=1.8`.
+
+```
+sudo apt-get install python3-catkin-tools
+
+cd ~/$A_ROS_DIR$/src
+git clone git@github.com:catkin/catkin_simple.git
+git clone git@github.com:zhan994/rio.git
+cd rio
+git checkout agrilira4d
+cd ../..
+catkin build --cmake-args -DCMAKE_BUILD_TYPE=Release
+source devel/setup.bash
+```
+
 # RIO - Radar Inertial Odometry and Radar based Ego Velocity Estimation
 Navigation in GNSS denied and visually degraded environments is still very challenging. 
 Approaches based on visual sensors tend to fail in conditions such as darkness, direct sunlight, fog or smoke.
