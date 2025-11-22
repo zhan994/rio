@@ -40,13 +40,14 @@ EkfRioRos::EkfRioRos(ros::NodeHandle& nh) : initialized_{false}
   reconfigure_server_.setCallback(boost::bind(&EkfRioRos::reconfigureCallback, this, _1, _2));
 
   // subscribers
+  // note: cancel baro & trigger
   sub_imu_  = nh.subscribe<sensor_msgs::Imu>(config_.topic_imu, 2, boost::bind(&EkfRioRos::callbackIMU, this, _1));
-  sub_baro_ = nh.subscribe<sensor_msgs::FluidPressure>(
-      config_.topic_baro_altimeter, 2, boost::bind(&EkfRioRos::callbackBaroAltimter, this, _1));
+  // sub_baro_ = nh.subscribe<sensor_msgs::FluidPressure>(
+  //     config_.topic_baro_altimeter, 2, boost::bind(&EkfRioRos::callbackBaroAltimter, this, _1));
   sub_radar_ = nh.subscribe<sensor_msgs::PointCloud2>(
       config_.topic_radar_scan, 2, boost::bind(&EkfRioRos::callbackRadarScan, this, _1));
-  sub_radar_trigger_ = nh.subscribe<std_msgs::Header>(
-      config_.topic_radar_trigger, 2, boost::bind(&EkfRioRos::callbackRadarTrigger, this, _1));
+  // sub_radar_trigger_ = nh.subscribe<std_msgs::Header>(
+  //     config_.topic_radar_trigger, 2, boost::bind(&EkfRioRos::callbackRadarTrigger, this, _1));
 
   // publishers
   pub_cov_               = nh.advertise<ekf_rio::EkfRioCovariance>("covariance", 5);
@@ -77,6 +78,7 @@ bool EkfRioRos::initImu(const ImuDataStamped& imu_data)
     Real baro_h_0 = 0.0;
     if (config_.altimeter_update)
     {
+      std::cout << "Initializing with barometric altimeter!!!" << std::endl;
       if (baro_init_vec_.size() > 0)
       {
         baro_h_0 = std::accumulate(baro_init_vec_.begin(), baro_init_vec_.end(), 0.0) / baro_init_vec_.size();
@@ -89,6 +91,7 @@ bool EkfRioRos::initImu(const ImuDataStamped& imu_data)
       }
     }
 
+    std::cout << " =================== Initializing IMU!!! ===================" << std::endl;
     initialized_            = ekf_rio_filter_.init(imu_init_, baro_h_0);
     filter_start_stamp_     = ekf_rio_filter_.getTimestamp();
     filter_start_wall_time_ = ros::WallTime::now();
@@ -102,6 +105,7 @@ bool EkfRioRos::initImu(const ImuDataStamped& imu_data)
   return initialized_;
 }
 
+// core loop
 void EkfRioRos::run()
 {
   ROS_INFO_STREAM(kStreamingPrefix << "Navigation filter started!");
@@ -110,6 +114,7 @@ void EkfRioRos::run()
   last_timestamp_pub_ = ros::TIME_MIN;
   while (ros::ok())
   {
+    // iter
     iterate();
     ros::spinOnce();
     r.sleep();
@@ -212,6 +217,8 @@ void EkfRioRos::runFromRosbag(const std::string& rosbag_path,
   printStats();
 }
 
+
+// core iteration step
 void EkfRioRos::iterate()
 {
   mutex_.lock();
@@ -251,6 +258,7 @@ void EkfRioRos::iterate()
       radar_w_queue_.emplace_back(imu_data_);
   }
 
+  // no baro
   if (!queue_baro_.empty())
   {
     auto baro_msg = queue_baro_.front();
@@ -322,6 +330,7 @@ void EkfRioRos::iterate()
 
   if (!queue_radar_.empty())
   {
+    std::cout << "Processing radar data..." << std::endl;
     if (radar_frame_id_.empty())
     {
       if (queue_radar_.front().header.frame_id.empty())
@@ -433,6 +442,7 @@ void EkfRioRos::iterate()
       }
     }
   }
+
   mutex_.unlock();
 }
 
