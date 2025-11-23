@@ -81,16 +81,20 @@ T_init: 0.1 # time to accumulate measurements for initialization
 calib_gyro: true
 g_n: 9.81
 
+## init position
 p_0_x: 0
 p_0_y: 0
 p_0_z: 0
 
+## init velocity
 v_0_x: 0
 v_0_y: 0
 v_0_z: 0
 
+## init attitude
 yaw_0_deg: 0
 
+## init acc and gyro bias
 b_0_a_x: 0
 b_0_a_y: 0
 b_0_a_z: 0
@@ -99,7 +103,9 @@ b_0_w_x_deg: 0
 b_0_w_y_deg: 0
 b_0_w_z_deg: 0
 
+## init altimeter bias
 b_0_alt: 0
+
 
 # Initial Uncertainty
 sigma_p: 0

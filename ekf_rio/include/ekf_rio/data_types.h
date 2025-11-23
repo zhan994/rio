@@ -114,22 +114,26 @@ struct InitStruct
   template <class Config>
   bool configure(const EkfRioFilterStateIdx& error, Config& config)
   {
-    p_0     = Vector3(config.p_0_x, config.p_0_y, config.p_0_z);
-    v_0     = Vector3(config.v_0_x, config.v_0_y, config.v_0_z);
-    yaw_0   = angles::from_degrees(config.yaw_0_deg);
-    b_a_0   = Vector3(config.b_0_a_x, config.b_0_a_y, config.b_0_a_z);
-    b_w_0   = Vector3(angles::from_degrees(config.b_0_w_x_deg),
+    p_0   = Vector3(config.p_0_x, config.p_0_y, config.p_0_z);  // init position
+    v_0   = Vector3(config.v_0_x, config.v_0_y, config.v_0_z);  // init velocity
+    yaw_0 = angles::from_degrees(config.yaw_0_deg);             // init attitude
+
+    b_a_0 = Vector3(config.b_0_a_x, config.b_0_a_y, config.b_0_a_z);  // init acc bias
+    b_w_0 = Vector3(angles::from_degrees(config.b_0_w_x_deg),
                     angles::from_degrees(config.b_0_w_y_deg),
-                    angles::from_degrees(config.b_0_w_z_deg));
-    b_alt_0 = config.b_0_alt;
-    l_b_r_0 = Vector3(config.l_b_r_x, config.l_b_r_y, config.l_b_r_z);
-    q_b_r_0 = Quaternion(config.q_b_r_w, config.q_b_r_x, config.q_b_r_y, config.q_b_r_z);
+                    angles::from_degrees(config.b_0_w_z_deg));  // init gyro bias
 
+    b_alt_0 = config.b_0_alt;  // init altimeter bias
+
+    l_b_r_0 = Vector3(config.l_b_r_x, config.l_b_r_y, config.l_b_r_z);                     // init radar lever arm
+    q_b_r_0 = Quaternion(config.q_b_r_w, config.q_b_r_x, config.q_b_r_y, config.q_b_r_z);  // init radar attitude
+
+    // initial covariance
     P_kk_0 = Matrix::Zero(error.base_state_length, error.base_state_length);
+
+    // position, velocity, attitude uncertainty
     P_kk_0.block(error.position, error.position, 3, 3).diagonal() = Vector3(1, 1, 1) * std::pow(config.sigma_p, 2);
-
     P_kk_0.block(error.velocity, error.velocity, 3, 3).diagonal() = Vector3(1, 1, 1) * std::pow(config.sigma_v, 2);
-
     P_kk_0.block(error.attitude, error.attitude, 3, 3).diagonal() =
         Vector3(angles::from_degrees(config.sigma_roll_pitch_deg),
                 angles::from_degrees(config.sigma_roll_pitch_deg),
@@ -137,16 +141,15 @@ struct InitStruct
             .array()
             .pow(2);
 
+    // bias uncertainty
     P_kk_0.block(error.bias_acc, error.bias_acc, 3, 3).diagonal() = Vector3(1, 1, 1) * std::pow(config.sigma_b_a, 2);
-
     P_kk_0.block(error.bias_gyro, error.bias_gyro, 3, 3).diagonal() =
         Vector3(1, 1, 1) * std::pow(angles::from_degrees(config.sigma_b_w_deg), 2);
-
     P_kk_0(error.bias_alt, error.bias_alt) = std::pow(config.sigma_b_alt, 2);
 
+    // radar extrinsics uncertainty
     P_kk_0.block(error.l_b_r, error.l_b_r, 3, 3).diagonal() =
         Vector3(config.sigma_l_b_r_x, config.sigma_l_b_r_y, config.sigma_l_b_r_z).array().pow(2);
-
     P_kk_0.block(error.eul_b_r, error.eul_b_r, 3, 3).diagonal() =
         Vector3(angles::from_degrees(config.sigma_eul_b_r_roll_deg),
                 angles::from_degrees(config.sigma_eul_b_r_pitch_deg),
@@ -154,6 +157,7 @@ struct InitStruct
             .array()
             .pow(2);
 
+    // gravity and calibration
     gravity           = config.g_n;
     omega_calibration = config.calib_gyro;
 
