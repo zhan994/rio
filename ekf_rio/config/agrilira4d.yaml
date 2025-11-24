@@ -21,18 +21,18 @@ topic_ground_truth_pose: "/ground_truth/pose"
 topic_ground_truth_twist: "/ground_truth/twist"
 topic_ground_truth_twist_body: "/ground_truth/twist_body"
 
-# KF Updates
+# =============================== KF Updates
 altimeter_update: False # disable baro
 sigma_altimeter: 5.0
 
 radar_update: True
 run_without_radar_trigger: True # disable trigger
 
+## =============================== radar ego velocity estimation
 # Radar Measurement Model
 outlier_percentil_radar: 0.05
-use_w: True
+use_w: True # Use omega to compensate for lever arm of radar
 
-## radar ego velocity estimation
 # filtering
 min_dist: 0.25                        # min distance of valid detection
 max_dist: 100                         # Max distance of valid detection
@@ -76,25 +76,25 @@ sigma_v_r: 0.125  # noise of v_r measurement used for the refinement
 model_noise_offset_deg: 2.0 # min model noise
 model_noise_scale_deg: 10.0 # scale model noise
 
-# Initialization
+## =============================== Initialization
 T_init: 0.1 # time to accumulate measurements for initialization
 calib_gyro: true
 g_n: 9.81
 
-## init position
+# init position
 p_0_x: 0
 p_0_y: 0
 p_0_z: 0
 
-## init velocity
+# init velocity
 v_0_x: 0
 v_0_y: 0
 v_0_z: 0
 
-## init attitude
+# init attitude
 yaw_0_deg: 0
 
-## init acc and gyro bias
+# init acc and gyro bias
 b_0_a_x: 0
 b_0_a_y: 0
 b_0_a_z: 0
@@ -103,7 +103,7 @@ b_0_w_x_deg: 0
 b_0_w_y_deg: 0
 b_0_w_z_deg: 0
 
-## init altimeter bias
+# init altimeter bias
 b_0_alt: 0
 
 
@@ -124,7 +124,7 @@ sigma_eul_b_r_pitch_deg: 0.25
 sigma_eul_b_r_yaw_deg: 0.25
 
 
-# Noise PSDs
+## =============================== Noise PSDs
 noise_psd_a: 0.03
 noise_psd_w_deg: 0.2
 noise_psd_b_a: 0.00001
