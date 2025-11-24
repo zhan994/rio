@@ -3,7 +3,7 @@
 Install prerequisites including `ROS>=Noetic`, `Eigen>=3.3.4`, and `PCL>=1.8`.
 
 ```
-sudo apt-get install python3-catkin-tools
+sudo apt-get install python3-catkin-tools gfortran
 
 cd ~/$A_ROS_DIR$/src
 git clone git@github.com:catkin/catkin_simple.git
