@@ -19,6 +19,7 @@
 #include <atomic>
 #include <queue>
 #include <mutex>
+#include <fstream>
 
 #include <ros/ros.h>
 #include <dynamic_reconfigure/server.h>
@@ -119,6 +120,11 @@ private:
    */
   void printStats();
 
+  /**
+   * @brief Records the pose in tum format for evo evaluation
+   */
+  void recordEvoPose(double timestamp, const Isometry& pose_ros);
+
   const std::string kStreamingPrefix = "[EkfRioRos]: ";
 
   dynamic_reconfigure::Server<ekf_rio::EkfRioConfig> reconfigure_server_;
@@ -177,5 +183,7 @@ private:
   std::string radar_frame_id_ = "";
 
   nav_msgs::Path pose_path_;
+
+  std::ofstream fout_evo_;
 };
 }  // namespace rio

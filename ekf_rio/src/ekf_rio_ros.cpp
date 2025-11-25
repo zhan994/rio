@@ -65,6 +65,11 @@ EkfRioRos::EkfRioRos(ros::NodeHandle& nh) : initialized_{false}
         nh.advertise<geometry_msgs::TwistStamped>(config_.topic_ground_truth_twist_body, 1000);
   }
 
+  // open evo file for output, path is home directory
+  const char* home_dir = getenv("HOME");
+  std::string evo_path = std::string(home_dir) + "/evo_EKFRIO.txt";
+  fout_evo_.open(evo_path, std::ios::out);
+
   ros::Duration(0.5).sleep();
 }
 
@@ -499,6 +504,9 @@ void EkfRioRos::publish()
   pose_stamped.pose            = tf2::toMsg(pose_ros);
   pub_pose_.publish(pose_stamped);
 
+  // record tum for evo
+  recordEvoPose(pose_stamped.header.stamp.toSec(), pose_ros);
+
   // twist
   geometry_msgs::TwistStamped twist_stamped;
   twist_stamped.header = pose_stamped.header;
@@ -607,4 +615,27 @@ void EkfRioRos::printStats()
 
   printf("  Attitude Error: %0.2fdeg\n\n", config_.yaw_0_deg - att_final.z());
   // clang-format on
+}
+
+void EkfRioRos::recordEvoPose(double timestamp, const Isometry& pose_ros)
+{
+  Matrix3 R_flu_odom, R_airbody_imu;
+  R_flu_odom << 0, 1, 0, -1, 0, 0, 0, 0, 1;
+  R_airbody_imu << 0, 0, -1, 1, 0, 0, 0, -1, 0;
+  Vector3 t_flu_odom(0.0, 0.0, 0.0);
+  Vector3 t_airbody_imu(0.0, 0.0, 0.0);
+
+  // odom -> imu
+  Matrix3 R_oi = pose_ros.rotation();
+  Vector3 t_oi = pose_ros.translation();
+  // flu -> imu
+  Matrix3 R_wi = R_flu_odom * R_oi;
+  Vector3 t_wi = R_flu_odom * t_oi + t_flu_odom;
+  // flu -> body
+  Matrix3 R_wb = R_wi * R_airbody_imu.transpose();
+  Vector3 t_wb = t_wi - R_wb * t_airbody_imu;
+  Eigen::Quaterniond q_wb(R_wb);
+
+  fout_evo_ << std::fixed << std::setprecision(6) << timestamp << " " << t_wb.x() << " " << t_wb.y() << " " << t_wb.z()
+            << " " << q_wb.x() << " " << q_wb.y() << " " << q_wb.z() << " " << q_wb.w() << std::endl;
 }

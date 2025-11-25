@@ -6,7 +6,7 @@
 frame_id: "odom"
 
 # Publishers
-publisher_rate: 30
+publisher_rate: 10
 pose_path_publisher_rate: 5
 
 # Subscribers
