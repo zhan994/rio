@@ -41,7 +41,7 @@ EkfRioRos::EkfRioRos(ros::NodeHandle& nh) : initialized_{false}
 
   // subscribers
   // note: cancel baro & trigger
-  sub_imu_  = nh.subscribe<sensor_msgs::Imu>(config_.topic_imu, 2, boost::bind(&EkfRioRos::callbackIMU, this, _1));
+  sub_imu_ = nh.subscribe<sensor_msgs::Imu>(config_.topic_imu, 2, boost::bind(&EkfRioRos::callbackIMU, this, _1));
   // sub_baro_ = nh.subscribe<sensor_msgs::FluidPressure>(
   //     config_.topic_baro_altimeter, 2, boost::bind(&EkfRioRos::callbackBaroAltimter, this, _1));
   sub_radar_ = nh.subscribe<sensor_msgs::PointCloud2>(
@@ -216,7 +216,6 @@ void EkfRioRos::runFromRosbag(const std::string& rosbag_path,
 
   printStats();
 }
-
 
 // core iteration step
 void EkfRioRos::iterate()
@@ -416,6 +415,8 @@ void EkfRioRos::iterate()
             sensor_msgs::PointCloud2 inlier_radar_scan;
             if (radar_ego_velocity_.estimate(radar_data_msg, v_r, sigma_v_r, inlier_radar_scan))
             {
+              std::cout << "Estimated radar ego velocity: " << v_r.transpose() << std::endl
+                        << "    v_r norm: " << v_r.norm() << " m/s" << std::endl;
               profiler_.stop("estimate_radar_velocity");
               profiler_.start("radar_velocity_kf_update");
 
@@ -460,6 +461,7 @@ void EkfRioRos::callbackIMU(const sensor_msgs::ImuConstPtr& imu_msg)
   if (std::fabs(last_imu_.dt) > 1.0e-6)
     dt = (imu_msg->header.stamp - last_imu_.time_stamp).toSec();
   last_imu_ = ImuDataStamped(imu_msg, dt);
+  last_imu_.normalize();
   queue_imu_.push(last_imu_);
   mutex_.unlock();
 }

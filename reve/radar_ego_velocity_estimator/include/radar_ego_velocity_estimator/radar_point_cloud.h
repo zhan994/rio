@@ -23,6 +23,28 @@
 
 #include <sensor_msgs/PointCloud2.h>
 
+// note: AgriLiRA4D Radar point cloud type
+namespace txg_radar
+{
+struct Point
+{
+  PCL_ADD_POINT4D;      // preferred way of adding a XYZ+padding
+  float v_doppler_mps;  // Doppler velocity in m/s
+  float snr_db;         // Signal-to-noise ratio in dB
+  float rcs;            // Radar cross-section in m^2
+};
+}  // namespace txg_radar
+// clang-format off
+POINT_CLOUD_REGISTER_POINT_STRUCT(txg_radar::Point,
+                                  (float, x, x)
+                                  (float, y, y)
+                                  (float, z, z)
+                                  (float, v_doppler_mps, v_doppler_mps)
+                                  (float, snr_db, snr_db)
+                                  (float, rcs, rcs))
+typedef txg_radar::Point TXGRadarPointType;
+// clang-format on
+
 namespace reve
 {
 struct RadarPointCloudType
@@ -53,5 +75,9 @@ struct mmWaveCloudType
 bool pcl2msgToPcl(const sensor_msgs::PointCloud2& pcl_msg, pcl::PointCloud<RadarPointCloudType>& scan);
 
 bool pclToPcl2msg(pcl::PointCloud<RadarPointCloudType> scan, sensor_msgs::PointCloud2& pcl_msg);
+
+bool pcl2msgToPcl(const sensor_msgs::PointCloud2& pcl_msg, pcl::PointCloud<TXGRadarPointType>& scan);
+
+bool pclToPcl2msg(pcl::PointCloud<TXGRadarPointType> scan, sensor_msgs::PointCloud2& pcl_msg);
 
 }  // namespace reve

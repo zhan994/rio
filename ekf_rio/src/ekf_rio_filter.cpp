@@ -39,6 +39,7 @@ bool EkfRioFilter::init(const std::vector<ImuDataStamped>& imu_init_vec, const R
   const Vector3 acc_mean = a_accu / imu_init_vec.size();
   const Vector3 w_mean   = w_accu / imu_init_vec.size();
 
+  std::cout << "Initial acc mean: " << acc_mean.transpose() << std::endl;
   EulerAngles roll_pitch = math_helper::initFromAcc(acc_mean, init_struct_.gravity);
 
   ROS_INFO_STREAM(kStreamingPrefix << "Initialized attitude: " << roll_pitch.to_degrees().x() << "deg, "

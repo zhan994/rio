@@ -10,38 +10,27 @@ publisher_rate: 30
 pose_path_publisher_rate: 5
 
 # Subscribers
-topic_imu: "/sensor_platform/imu"
-topic_baro_altimeter: "/sensor_platform/baro"
-topic_radar_scan: "/sensor_platform/radar/scan"
-topic_radar_trigger: "/sensor_platform/radar/trigger"
-
-# Rosbag mode --> used by rosbag node
-republish_ground_truth: False
-topic_ground_truth_pose: "/ground_truth/pose"
-topic_ground_truth_twist: "/ground_truth/twist"
-topic_ground_truth_twist_body: "/ground_truth/twist_body"
+topic_imu: "/rslidar_imu_data"
+topic_radar_scan: "/radar_points"
 
 # =============================== KF Updates
-altimeter_update: False # disable baro
-sigma_altimeter: 5.0
-
 radar_update: True
 run_without_radar_trigger: True # disable trigger
 
 ## =============================== radar ego velocity estimation
 # Radar Measurement Model
-outlier_percentil_radar: 0.05
+outlier_percentil_radar: 0.00
 use_w: True # Use omega to compensate for lever arm of radar
 
 # filtering
-min_dist: 0.25                        # min distance of valid detection
+min_dist: 2                        # min distance of valid detection
 max_dist: 100                         # Max distance of valid detection
 min_db: 3                             # min SNR in [db]
-elevation_thresh_deg: 60              # threshold for elevation [deg]
+elevation_thresh_deg: 30              # threshold for elevation [deg]
 azimuth_thresh_deg: 60                # threshold fo azimuth [deg]
 radar_velocity_correction_factor: 1.0 # Doppler velocity correction
-filter_min_z: -3 # in -2 2 out
-filter_max_z: 3
+filter_min_z: -100 # 100 for agricultural use cases
+filter_max_z: 100
 
 # zero velocity detection
 thresh_zero_velocity: 0.05        # all inliers need to smaller than this value
@@ -51,9 +40,9 @@ sigma_zero_velocity_y: 0.025      # sigma_v_r
 sigma_zero_velocity_z: 0.025      # sigma v_r
 
 # result filtering
-max_sigma_x: 0.2   # max estimated sigma to be considered an inlier (right)
-max_sigma_y: 0.2  # (forward)
-max_sigma_z: 0.2   # (up)
+max_sigma_x: 0.15   # max estimated sigma to be considered an inlier (right)
+max_sigma_y: 0.3  # (forward)
+max_sigma_z: 0.3   # (up)
 max_r_cond: 1.0e3  # max conditional number of LSQ Pseudo Inverse to ensure a stable result
 use_cholesky_instead_of_bdcsvd: True # faster but less stable
 

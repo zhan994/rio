@@ -109,3 +109,32 @@ bool reve::pclToPcl2msg(pcl::PointCloud<RadarPointCloudType> scan, sensor_msgs::
 
   return true;
 }
+
+bool reve::pcl2msgToPcl(const sensor_msgs::PointCloud2& pcl_msg, pcl::PointCloud<TXGRadarPointType>& scan)
+{
+  std::set<std::string> fields;
+  std::string fields_str = "";
+  for (const auto& field : pcl_msg.fields)
+  {
+    fields.emplace(field.name);
+    fields_str += field.name + ", ";
+  }
+
+  pcl::PCLPointCloud2 pcl_pc2;
+  pcl_conversions::toPCL(pcl_msg, pcl_pc2);
+  pcl::fromPCLPointCloud2(pcl_pc2, scan);
+
+  return true;
+}
+
+bool reve::pclToPcl2msg(pcl::PointCloud<TXGRadarPointType> scan, sensor_msgs::PointCloud2& pcl_msg)
+{
+  scan.height = 1;
+  scan.width  = scan.size();
+
+  pcl::PCLPointCloud2 tmp;
+  pcl::toPCLPointCloud2<TXGRadarPointType>(scan, tmp);
+  pcl_conversions::fromPCL(tmp, pcl_msg);
+
+  return true;
+}

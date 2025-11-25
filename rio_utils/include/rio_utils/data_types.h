@@ -151,11 +151,7 @@ struct ImuDataStamped
                  const double dt,
                  const Vector3& a_b_ib,
                  const Vector3& w_b_ib) :
-    time_stamp{time_stamp},
-    frame_id{frame_id},
-    dt{dt},
-    a_b_ib{a_b_ib},
-    w_b_ib{w_b_ib}
+    time_stamp{time_stamp}, frame_id{frame_id}, dt{dt}, a_b_ib{a_b_ib}, w_b_ib{w_b_ib}
   {
   }
 
@@ -179,6 +175,10 @@ struct ImuDataStamped
     imu_msg.linear_acceleration.y = a_b_ib.y();
     imu_msg.linear_acceleration.z = a_b_ib.z();
     return imu_msg;
+  }
+
+  void normalize() {
+    a_b_ib = a_b_ib.normalized() * 9.81;
   }
 
   ros::Time time_stamp;  // ros::Time

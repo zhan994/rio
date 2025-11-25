@@ -90,6 +90,13 @@ public:
                 pcl::PointCloud<RadarPointCloudType>& inlier_radar,
                 const Matrix3& C_stab_r = Matrix3::Identity());
 
+  // note: add TXGRadarPointType version
+  bool estimate(const sensor_msgs::PointCloud2& radar_scan_msg,
+                Vector3& v_r,
+                Matrix3& P_v_r,
+                pcl::PointCloud<TXGRadarPointType>& inlier_radar,
+                const Matrix3& C_stab_r = Matrix3::Identity());
+
 private:
   /**
    * @brief Implementation of the ransac based estimation
@@ -165,11 +172,11 @@ bool RadarEgoVelocityEstimator::configure(ConfigContainingRadarEgoVelocityEstima
   config_.N_ransac_points = config.N_ransac_points;
   config_.inlier_thresh   = config.inlier_thresh;
 
-  config_.use_odr   = config.use_odr;
-  config_.sigma_v_d = config.sigma_v_d;
-  config_.min_speed_odr = config.min_speed_odr;
+  config_.use_odr                = config.use_odr;
+  config_.sigma_v_d              = config.sigma_v_d;
+  config_.min_speed_odr          = config.min_speed_odr;
   config_.model_noise_offset_deg = config.model_noise_offset_deg;
-  config_.model_noise_scale_deg = config.model_noise_scale_deg;
+  config_.model_noise_scale_deg  = config.model_noise_scale_deg;
 
   setRansacIter();
 
