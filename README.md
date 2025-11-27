@@ -13,6 +13,8 @@ git checkout agrilira4d
 cd ../..
 catkin build --cmake-args -DCMAKE_BUILD_TYPE=Release
 source devel/setup.bash
+
+roslaunch ekf_rio agrilira4d_ekfrio_ros.launch
 ```
 
 # RIO - Radar Inertial Odometry and Radar based Ego Velocity Estimation
